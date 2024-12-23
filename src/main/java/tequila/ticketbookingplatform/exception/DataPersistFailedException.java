@@ -1,4 +1,4 @@
-package lk.ijse.green_shadow_backend.exception;
+package tequila.ticketbookingplatform.exception;
 
 public class DataPersistFailedException extends RuntimeException {
     public DataPersistFailedException() {

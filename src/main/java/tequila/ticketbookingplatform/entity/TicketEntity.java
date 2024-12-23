@@ -20,5 +20,5 @@ public class TicketEntity {
 
     @ManyToOne
     @JoinColumn(name = "event_id")
-    private  event;
+    private  EventEntity event;
 }

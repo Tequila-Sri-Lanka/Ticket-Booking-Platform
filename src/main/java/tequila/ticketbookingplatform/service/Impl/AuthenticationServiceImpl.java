@@ -1,23 +1,24 @@
-package lk.ijse.green_shadow_backend.service.impl;
+package tequila.ticketbookingplatform.service.Impl;
 
-import lk.ijse.green_shadow_backend.dao.UserDao;
-import lk.ijse.green_shadow_backend.dto.UserDto;
-import lk.ijse.green_shadow_backend.jwtmodels.JwtAuthResponse;
-import lk.ijse.green_shadow_backend.jwtmodels.SignIn;
-import lk.ijse.green_shadow_backend.service.AuthenticationService;
-import lk.ijse.green_shadow_backend.service.JWTService;
-import lk.ijse.green_shadow_backend.util.Mapping;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import tequila.ticketbookingplatform.dto.UserDto;
+import tequila.ticketbookingplatform.jwtmodels.JwtAuthResponse;
+import tequila.ticketbookingplatform.jwtmodels.SignIn;
+import tequila.ticketbookingplatform.repository.UserRepo;
+import tequila.ticketbookingplatform.service.AuthenticationService;
+import tequila.ticketbookingplatform.service.JWTService;
+import tequila.ticketbookingplatform.util.Mapping;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationServiceIMPL implements AuthenticationService {
-    private final UserDao userDao;
+public class AuthenticationServiceImpl implements AuthenticationService {
+    private final UserRepo userDao;
     private final JWTService jwtService;
     private final Mapping mapping;
     //utils
@@ -29,8 +30,8 @@ public class AuthenticationServiceIMPL implements AuthenticationService {
                 new UsernamePasswordAuthenticationToken(signIn.getEmail(),signIn.getPassword()));
         var userByEmail = userDao.findByEmail(signIn.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-       var generatedToken = jwtService.generateToken(userByEmail);
-       return JwtAuthResponse.builder().token(generatedToken).build() ;
+        var generatedToken = jwtService.generateToken(userByEmail);
+        return JwtAuthResponse.builder().token(generatedToken).build() ;
     }
 
     @Override

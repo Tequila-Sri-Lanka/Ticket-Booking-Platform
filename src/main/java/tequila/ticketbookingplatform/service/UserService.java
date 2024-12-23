@@ -1,9 +1,14 @@
 package tequila.ticketbookingplatform.service;
 
-import tequila.ticketbookingplatform.dto.UserDTO;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import tequila.ticketbookingplatform.dto.UserDto;
+
+import java.util.List;
 
 public interface UserService {
-    UserDTO registerUser(UserDTO userDto);
-
-    UserDTO userLogin(UserDTO dto);
+    public void saveUser(UserDto userDTO);
+    public void deleteUser(Long id);
+    public void updateUser(Long id, UserDto updatedUser);
+    public List<UserDto> getAllUsers();
+    UserDetailsService userDetailsService();
 }

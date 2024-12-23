@@ -1,58 +1,84 @@
 package tequila.ticketbookingplatform.service.Impl;
 
 import jakarta.transaction.Transactional;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+
 import org.springframework.stereotype.Service;
-import tequila.ticketbookingplatform.dto.UserDTO;
+import tequila.ticketbookingplatform.dto.UserDto;
 import tequila.ticketbookingplatform.entity.UserEntity;
+import tequila.ticketbookingplatform.exception.DataPersistFailedException;
+import tequila.ticketbookingplatform.exception.NotFoundException;
 import tequila.ticketbookingplatform.repository.UserRepo;
 import tequila.ticketbookingplatform.service.UserService;
+import tequila.ticketbookingplatform.util.Mapping;
 
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
 public class UserServiceImpl  implements UserService {
-    private final UserRepo userRepo;
-    private final ModelMapper modelMapper;
+    private final UserRepo userDAO;
+    private final Mapping mapping;
 
     @Autowired
-    public UserServiceImpl(UserRepo userRepo, ModelMapper modelMapper) {
-        this.userRepo = userRepo;
-        this.modelMapper = modelMapper;
-    }
+    public UserServiceImpl(UserRepo userRepo, UserRepo userDAO, ModelMapper modelMapper, Mapping mapping) {
 
-    @Override
-    public UserDTO registerUser(UserDTO userDto) {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        UserEntity user = this.dtoToEntity(userDto);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        UserEntity save = this.userRepo.save(user);
-        return entityToDto(save);
-    }
+        this.userDAO = userRepo;
 
+        this.mapping = mapping;
+    }
     @Override
-    public UserDTO userLogin(UserDTO dto) {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        List<UserEntity> userNames = userRepo.findByUserName(dto.getUserName());
-        for (UserEntity name : userNames) {
-            boolean isPasswordMatches = passwordEncoder.matches(dto.getPassword(), name.getPassword());
-            if (isPasswordMatches) {
-                return entityToDto(name);
-            }
+    public void saveUser(UserDto userDTO) {
+        if (userDTO.getEmail() == null) {
+            throw new NotFoundException(" Email are required.");
         }
-        return null;
+        UserEntity savedUser = userDAO.save(mapping.convertToUserEntity(userDTO));
+        if(savedUser == null){
+            throw new DataPersistFailedException("Cannot save user");
+        }
     }
 
 
-    private UserEntity dtoToEntity(UserDTO userDto) {
-        return modelMapper.map(userDto, UserEntity.class);
+    @Override
+    public void deleteUser(Long id) {
+        if (!userDAO.existsById(id)) {
+            throw new NotFoundException("Cannot delete: User with ID " + id + " not found.");
+        }
+        userDAO.deleteById(id);
     }
 
-    private UserDTO entityToDto(UserEntity user) {
-        return (user == null) ? null : modelMapper.map(user, UserDTO.class);
+    @Override
+    public void updateUser(Long id, UserDto updatedUser) {
+        Optional<UserEntity> tmpUser = userDAO.findById(id);
+
+        if (tmpUser.isEmpty()) {
+            throw new NotFoundException("User not found");
+        } else {
+            UserEntity userEntity = mapping.convertToUserEntity(updatedUser);
+            userEntity.setId(id);
+            userDAO.save(userEntity);
+        }
     }
+
+    @Override
+    public List<UserDto> getAllUsers() {
+        return mapping.convertUserToDTOList(userDAO.findAll());
+    }
+
+
+    @Override
+    public UserDetailsService userDetailsService() {
+        return email ->
+                userDAO.findByEmail(email)
+                        .orElseThrow(()-> new NotFoundException("User Not found"));
+    }
+
+
+
+
 }

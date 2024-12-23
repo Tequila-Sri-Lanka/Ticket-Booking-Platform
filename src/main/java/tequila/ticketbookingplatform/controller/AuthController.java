@@ -1,52 +1,43 @@
 package tequila.ticketbookingplatform.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import tequila.ticketbookingplatform.dto.UserDTO;
-import tequila.ticketbookingplatform.service.UserService;
-import tequila.ticketbookingplatform.util.JWTTokenGenerator;
+import tequila.ticketbookingplatform.dto.UserDto;
+import tequila.ticketbookingplatform.exception.DataPersistFailedException;
+import tequila.ticketbookingplatform.jwtmodels.JwtAuthResponse;
+import tequila.ticketbookingplatform.jwtmodels.SignIn;
+import tequila.ticketbookingplatform.service.AuthenticationService;
 
-import java.util.HashMap;
-import java.util.Map;
-
-@CrossOrigin
 @RestController
-@RequestMapping("/user")
+@RequestMapping("api/v1/auth")
+@RequiredArgsConstructor
+@CrossOrigin()
 public class AuthController {
+    private final AuthenticationService authenticationService;
+    private final PasswordEncoder passwordEncoder;
 
-    private final UserService userService;
-
-    private final JWTTokenGenerator jwtTokenGenerator;
-
-    @Autowired
-    public AuthController(UserService userService, JWTTokenGenerator jwtTokenGenerator) {
-        this.userService = userService;
-        this.jwtTokenGenerator = jwtTokenGenerator;
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<Object> registerUser(@RequestBody UserDTO userDto, @RequestHeader(name = "Authorization") String authorizationHeader) {
-        if (this.jwtTokenGenerator.validateJwtToken(authorizationHeader)) {
-            UserDTO dto = this.userService.registerUser(userDto);
-            return new ResponseEntity<>(dto, HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>("TOKEN_INVALID", HttpStatus.BAD_REQUEST);
+    @PostMapping(value = "/signup")
+    public ResponseEntity<JwtAuthResponse> signUp(@RequestBody UserDto userDTO) {
+        try {
+            userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            //send to the service layer
+            return ResponseEntity.ok(authenticationService.signUp(userDTO));
+        }catch (DataPersistFailedException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @PostMapping("/login")
-    public Map<String, String> postLogin(@RequestBody UserDTO dto) {
-        UserDTO user = userService.userLogin(dto);
-        Map<String, String> response = new HashMap<>();
-        if (user == null) {
-            response.put("massage", "wrong details");
-        } else {
-            String token = this.jwtTokenGenerator.generateJwtToken(user);
-            response.put("token", token);
-        }
-        return response;
+    @PostMapping(value = "/signin")
+    public ResponseEntity<JwtAuthResponse> signIn(@RequestBody SignIn signIn) {
+        return ResponseEntity.ok(authenticationService.signIn(signIn));
+    }
+    @PostMapping("refresh")
+    public ResponseEntity<JwtAuthResponse> refreshToken (@RequestParam("refreshToken") String refreshToken) {
+        return ResponseEntity.ok(authenticationService.refreshToken(refreshToken));
     }
 
 }

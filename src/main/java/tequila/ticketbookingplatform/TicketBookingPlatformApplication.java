@@ -1,11 +1,13 @@
 package tequila.ticketbookingplatform;
 
 import jakarta.annotation.PostConstruct;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import tequila.ticketbookingplatform.entity.UserEntity;
 import tequila.ticketbookingplatform.repository.UserRepo;
@@ -25,16 +27,10 @@ public class TicketBookingPlatformApplication {
     public static void main(String[] args) {
         SpringApplication.run(TicketBookingPlatformApplication.class, args);
     }
-    @PostConstruct
-    public void initUsers() {
-        try {
-            String encodePassword = passwordEncoder.encode("ADMIN");
-            List<UserEntity> users = Stream.of(
-                    new UserEntity(1L, "sachi", "199907502281", "ADMIN", encodePassword)
-            ).toList();
-            userRepo.saveAll(users);
-        } catch (Exception e) {
-            logger.error("An error occurred during user initialization.", e);
-        }
+
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
     }
+
 }

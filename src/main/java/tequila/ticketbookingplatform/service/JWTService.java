@@ -1,4 +1,4 @@
-package lk.ijse.green_shadow_backend.service;
+package tequila.ticketbookingplatform.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
 

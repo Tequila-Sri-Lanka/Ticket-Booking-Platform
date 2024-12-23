@@ -1,4 +1,4 @@
-package lk.ijse.green_shadow_backend.jwtmodels;
+package tequila.ticketbookingplatform.jwtmodels;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

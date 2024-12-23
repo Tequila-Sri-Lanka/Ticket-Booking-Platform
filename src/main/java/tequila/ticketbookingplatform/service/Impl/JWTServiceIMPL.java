@@ -1,14 +1,14 @@
-package lk.ijse.green_shadow_backend.service.impl;
+package tequila.ticketbookingplatform.service.Impl;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lk.ijse.green_shadow_backend.service.JWTService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import tequila.ticketbookingplatform.service.JWTService;
 
 import java.security.Key;
 import java.util.Date;
