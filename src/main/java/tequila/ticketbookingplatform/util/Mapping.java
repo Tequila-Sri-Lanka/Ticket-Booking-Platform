@@ -5,9 +5,11 @@ import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import tequila.ticketbookingplatform.dto.EventDTO;
+import tequila.ticketbookingplatform.dto.TicketBookingDTO;
 import tequila.ticketbookingplatform.dto.TicketDTO;
 import tequila.ticketbookingplatform.dto.UserDto;
 import tequila.ticketbookingplatform.entity.EventEntity;
+import tequila.ticketbookingplatform.entity.TicketBookingEntity;
 import tequila.ticketbookingplatform.entity.TicketEntity;
 import tequila.ticketbookingplatform.entity.UserEntity;
 
@@ -63,4 +65,5 @@ public class Mapping {
         return modelMapper.map(userEntities, new TypeToken<List<UserDto>>() {
         }.getType());
     }
+
 }

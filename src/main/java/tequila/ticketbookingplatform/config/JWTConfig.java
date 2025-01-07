@@ -33,9 +33,11 @@ public class JWTConfig extends OncePerRequestFilter {
         // Initial validation
         if (StringUtils.isEmpty(initToken) || !initToken.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
+            System.out.println(initToken);
             return;
         }
         // Token received
+        System.out.println(initToken);
         jwtToken = initToken.substring(7);
         userEmail = jwtService.extractUsername(jwtToken);
 
