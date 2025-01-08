@@ -15,4 +15,6 @@ public class TicketDTO {
     private String status;
 
     private String eventId;
+
+    private  int qty;
 }

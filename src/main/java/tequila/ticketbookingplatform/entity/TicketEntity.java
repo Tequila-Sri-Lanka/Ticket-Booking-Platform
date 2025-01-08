@@ -17,7 +17,7 @@ public class TicketEntity {
     private float price;
     private String ticketType;
     private String status;
-
+    private int qty;
     @ManyToOne
     @JoinColumn(name = "event_id")
     private  EventEntity event;

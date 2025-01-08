@@ -43,6 +43,21 @@ public class UserServiceImpl  implements UserService {
         }
     }
 
+//    @Override
+//    public UserDto getUserByEmail(String email) {
+//        Optional<UserEntity> optionalUser = userDAO.findByEmail(email);
+//
+//
+//        UserEntity user = optionalUser.orElseThrow(() ->
+//                new NotFoundException("Cannot find: User with Email " + email + " not found.")
+//        );
+//
+//
+//        UserDto userDto = mapping.convertToUserDTO(user);
+//        return userDto;
+//
+//    }
+
 
     @Override
     public void deleteUser(Long id) {
