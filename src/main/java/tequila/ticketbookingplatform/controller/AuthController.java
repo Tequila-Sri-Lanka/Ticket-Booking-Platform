@@ -33,6 +33,8 @@ public class AuthController {
     }
     @PostMapping(value = "/signin")
     public ResponseEntity<JwtAuthResponse> signIn(@RequestBody SignIn signIn) {
+        System.out.println("login credentials"+signIn.getEmail()+"==>"+signIn.getPassword());
+
         return ResponseEntity.ok(authenticationService.signIn(signIn));
     }
     @PostMapping("refresh")

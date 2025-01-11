@@ -9,7 +9,8 @@ import tequila.ticketbookingplatform.dto.EventDTO;
 import tequila.ticketbookingplatform.service.EventService;
 
 @RestController
-@RequestMapping("/events")
+@RequestMapping("api/v1/events")
+@CrossOrigin("*")
 public class EventController {
 
     @Autowired

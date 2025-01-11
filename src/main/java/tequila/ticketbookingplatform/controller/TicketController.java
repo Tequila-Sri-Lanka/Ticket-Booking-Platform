@@ -9,7 +9,8 @@ import tequila.ticketbookingplatform.dto.TicketDTO;
 import tequila.ticketbookingplatform.service.TicketService;
 
 @RestController
-@RequestMapping("/tickets")
+@RequestMapping("api/v1/tickets")
+@CrossOrigin("*")
 public class TicketController {
     @Autowired
     private TicketService ticketService;
@@ -37,6 +38,8 @@ public class TicketController {
 
     @GetMapping
     public ResponseEntity<?> getAllTickets() {
+
+        System.out.println("ticket all awa");
         return ResponseEntity.ok(ticketService.getAllTickets());
     }
 

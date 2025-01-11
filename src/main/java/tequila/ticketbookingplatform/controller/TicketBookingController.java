@@ -10,7 +10,8 @@ import tequila.ticketbookingplatform.service.TicketBookingService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/bookings")
+@RequestMapping("api/v1/bookings")
+@CrossOrigin("*")
 public class TicketBookingController {
 
     private final TicketBookingService service;
