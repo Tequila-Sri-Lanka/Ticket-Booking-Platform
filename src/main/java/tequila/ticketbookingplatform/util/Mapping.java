@@ -75,6 +75,20 @@ public class Mapping {
         return modelMapper.map(movieEntities, new TypeToken<List<MovieDTO>>() {
         }.getType());
     }
+    //sport mapping
+    public SportEntity convertToSportEntity(SportDTO sportDTO) {
+        return modelMapper.map(sportDTO, SportEntity.class);
 
+    }
+
+    public SportDTO convertToSportDTO(SportEntity sportEntity) {
+
+        return modelMapper.map(sportEntity, SportDTO.class);
+    }
+
+    public List<SportDTO> convertSportToDTOList(List<SportEntity> sportEntities) {
+        return modelMapper.map(sportEntities, new TypeToken<List<SportDTO>>() {
+        }.getType());
+    }
 
 }
