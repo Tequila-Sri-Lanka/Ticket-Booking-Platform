@@ -24,5 +24,6 @@ public class MovieEntity {
     private Double rating;
     private double playTime;
     private String description;
+    private String image;
 
 }

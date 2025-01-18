@@ -2,7 +2,6 @@ package tequila.ticketbookingplatform.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.exception.SdkException;
@@ -14,8 +13,10 @@ import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.UUID;
 
 @Service
@@ -40,30 +41,30 @@ public class S3Service {
                 .build();
     }
 
-    public String uploadFile(MultipartFile profilePic, String folder) throws IOException {
-        InputStream inputStream = profilePic.getInputStream();
-
-        String uniqueFileName = UUID.randomUUID() + "_" + profilePic.getOriginalFilename();
+    public String uploadFile(File file, String folder) throws IOException {
+        String uniqueFileName = UUID.randomUUID() + "_" + file.getName();
         String fileKey = folder + "/" + uniqueFileName;
 
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(fileKey)
-                .contentType(profilePic.getContentType())
-                .build();
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            String contentType = Files.probeContentType(file.toPath()); // Get file MIME type
 
-        s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, inputStream.available()));
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileKey)
+                    .contentType(contentType)
+                    .build();
+
+            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, file.length()));
+        }
 
         return uniqueFileName;
     }
 
-    // Method to construct and return file URL
     public String getFileUrl(String fileName) {
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
     }
 
-    // Method to delete a file from S3
-    public boolean deleteFile(String fileName,String folder) {
+    public boolean deleteFile(String fileName, String folder) {
         String fileKey = folder + "/" + fileName;
 
         try {
@@ -80,22 +81,20 @@ public class S3Service {
                     .build();
 
             s3Client.deleteObject(deleteObjectRequest);
-            return true; // Indicate success
+            return true;
         } catch (NoSuchKeyException e) {
             System.err.println("File not found: " + e.getMessage());
-            return false; // Indicate failure
+            return false;
         } catch (SdkException e) {
             System.err.println("Error deleting file: " + e.getMessage());
-            return false; // Indicate failure
+            return false;
         }
     }
 
-    public String updateFile(MultipartFile newProfilePic, String existingFileName, String folder) throws IOException {
-        // Delete the existing file
-        boolean isDeleted = deleteFile(existingFileName,folder);
+    public String updateFile(File newFile, String existingFileName, String folder) throws IOException {
+        boolean isDeleted = deleteFile(existingFileName, folder);
         if (isDeleted) {
-            // Upload the new file to the specified folder
-            return uploadFile(newProfilePic, folder);
+            return uploadFile(newFile, folder);
         } else {
             throw new IOException("Failed to delete the existing file before updating.");
         }
